@@ -76,7 +76,6 @@ struct function : expression
         return out_s ? out_s : out;
     }
     shared_ptr<expression> with_substituted_var(int id, shared_ptr<expression> arg) const override {
-        assert(id != in->id && "each function must have independent variable");
         auto out_s = out->with_substituted_var(id, arg);
         return make_shared<function>(in, out_s ? out_s : out);
     }
@@ -183,7 +182,93 @@ int main(int, char **)
 
         expr bool_false(lambda{}, expr("c", 2), expr(lambda{}, expr("d", 3), expr("d", 3)));
         cout << "  "; bool_false.print(cout); cout << '\n';
+
+        expr select1(expr(bool_true, expr("1", 4)), expr("2", 5));
+        cout << "  "; select1.print(cout); cout << '\n';
+
+        select1.beta_reduce();
+        cout << "  "; select1.print(cout); cout << '\n';
+
+        expr select2(expr(bool_false, expr("1", 4)), expr("2", 5));
+        cout << "  "; select2.print(cout); cout << '\n';
+
+        select2.beta_reduce();
+        cout << "  "; select2.print(cout); cout << '\n';
+    }
+    {
+        cout << "> scope of reducing\n";
+
+        expr i(lambda{}, expr("a", 0), expr(expr(expr("a", 0), expr("a", 0)), expr("a", 0)));
+        cout << "  "; i.print(cout); cout << '\n';
+
+        expr ii(i, i);
+        cout << "  "; ii.print(cout); cout << '\n';
+
+        ii.beta_reduce();
+        cout << "  "; ii.print(cout); cout << '\n';
+    }
+    {
+        expr bool_true(lambda{}, expr("a", 0), expr(lambda{}, expr("b", 1), expr("a", 0)));
+        expr bool_false(lambda{}, expr("c", 2), expr(lambda{}, expr("d", 3), expr("d", 3)));
+
+        cout << "> not boolean function\n";
+        expr bool_not(lambda{}, expr("x", 4), expr(expr(expr("x", 4), bool_false), bool_true));
+        cout << "  "; bool_not.print(cout); cout << '\n';
+        {
+            cout << "> not true == false\n";
+            expr not_true(bool_not, bool_true);
+            cout << "  "; not_true.print(cout); cout << '\n';
+
+            not_true.beta_reduce();
+            cout << "  "; not_true.print(cout); cout << '\n';
+
+            not_true.beta_reduce();
+            cout << "  "; not_true.print(cout); cout << '\n';
+        }{
+            cout << "> not false == true\n";
+            expr not_false(bool_not, bool_false);
+            cout << "  "; not_false.print(cout); cout << '\n';
+
+            not_false.beta_reduce();
+            cout << "  "; not_false.print(cout); cout << '\n';
+
+            not_false.beta_reduce();
+            cout << "  "; not_false.print(cout); cout << '\n';
+        }
+
+        cout << "> and boolean function\n";
+        expr bool_and(lambda{}, expr("x", 4), expr(lambda{}, expr("y", 5), expr(expr(expr("x", 4), expr("y", 5)), bool_false)));
+        {
+            cout << "> true & true == true\n";
+            expr true_and_true(expr(bool_and, bool_true), bool_true);
+            true_and_true.beta_reduce();
+            true_and_true.beta_reduce();
+            cout << "  "; true_and_true.print(cout); cout << '\n';
+        }
+        {
+            cout << "> true & false == false\n";
+            expr true_and_true(expr(bool_and, bool_true), bool_false);
+            true_and_true.beta_reduce();
+            true_and_true.beta_reduce();
+            cout << "  "; true_and_true.print(cout); cout << '\n';
+        }
+        {
+            cout << "> false & true == false\n";
+            expr true_and_true(expr(bool_and, bool_false), bool_true);
+            true_and_true.beta_reduce();
+            true_and_true.beta_reduce();
+            cout << "  "; true_and_true.print(cout); cout << '\n';
+        }
+        {
+            cout << "> false & false == false\n";
+            expr true_and_true(expr(bool_and, bool_false), bool_false);
+            true_and_true.beta_reduce();
+            true_and_true.beta_reduce();
+            cout << "  "; true_and_true.print(cout); cout << '\n';
+        }
     }
 
+    // FIXME: yet there is a problem. if TRUE and FALSE are stated both w/ a0, b1,
+    // then using true & false leads to strange abab.b instead of ab.b
     return 0;
 }
