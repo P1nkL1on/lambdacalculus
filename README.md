@@ -1,27 +1,44 @@
-Simple exercise to step a bit to lambda calculus
+Simple exercise to step a bit to lambda calculus https://www.youtube.com/watch?v=RcVA8Nj6HEo
 
 ```bash
-1A. replace x with E:
-	((λx.(x b)) E) -- call
-	(x -> x(b))(E) -- call
-1B. reduced:
-	(E b) -- call
-	E(b) -- call
-
-2A. to reduce:
-	((λx.(x (y x))) (f f)) -- call
-	(x -> x(y(x)))(f(f)) -- call
-2B. reduced:
-	((f f) (y (f f))) -- call
-	f(f)(y(f(f))) -- call
-
-3A. True:
-	(λab.a) -- function
-	(a -> (b -> a)) -- function
-3B. False:
-	(λab.b) -- function
-	(a -> (b -> b)) -- function
-3C. x and y:
-	(λxy.((x y) (λab.b))) -- function
-	(x -> (y -> x(y)((a -> (b -> b))))) -- function
+> substitute ((λx.(xb))E) -> (Eb)
+  ((λx.(xb))E)
+  (Eb)
+> function w/ output independent from input
+  ((λx.y)a)
+  y
+> substitute func w/ 3 args
+  (λxyz.foo)
+  ((λxyz.foo)abc)
+  foo
+> true and false selectors
+  (λab.a)
+  (λcd.d)
+  ((λab.a)12)
+  1
+  ((λcd.d)12)
+  2
+> scope of reducing
+  (λa.(aaa))
+  ((λa.(aaa))(λa.(aaa)))
+  ((λa.(aaa))(λa.(aaa))(λa.(aaa)))
+> not boolean function
+  (λx.(x(λcd.d)(λab.a)))
+> not true == false
+  ((λx.(x(λcd.d)(λab.a)))(λab.a))
+  ((λab.a)(λcd.d)(λab.a))
+  (λcd.d)
+> not false == true
+  ((λx.(x(λcd.d)(λab.a)))(λcd.d))
+  ((λcd.d)(λcd.d)(λab.a))
+  (λab.a)
+> and boolean function
+> true & true == true
+  (λab.a)
+> true & false == false
+  (λcd.d)
+> false & true == false
+  (λcd.d)
+> false & false == false
+  (λcd.d)
 ```
