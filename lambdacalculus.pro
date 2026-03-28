@@ -1,2 +1,3 @@
 CONFIG += c++17
-SOURCES += main.cpp
+SOURCES += main2.cpp
+#    main.cpp \

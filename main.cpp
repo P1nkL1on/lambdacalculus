@@ -182,7 +182,7 @@ std::shared_ptr<expression> beta_reduce(std::shared_ptr<expression> expr) {
 }
 
 
-int main(int, char **)
+int main_old(int, char **)
 {
     auto apply_x_to_b = new_func("x", new_call(new_variable("x"), new_variable("b")));
     auto call_apply_E_to_b = new_call(apply_x_to_b, new_variable("E"));
